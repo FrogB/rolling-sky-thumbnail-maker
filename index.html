@@ -1,17 +1,22 @@
 <html>
 <head>
-    <title>Thumnail Maker</title>
+    <title>Rolling Sky - Thumbnail Maker</title>
 	<link rel="stylesheet" href="style.css">
 	<link rel="icon" href="icon.png">
 </head>
 <body onLoad="onOpen()"><center>
     <font size="5">
 	<p>
-	<b>Thumnail Creator for Showcase Video</b>
+	<b>Rolling Sky - Thumbnail Creator</b>
 	</font><br>
 	
 	<font size="3" style="color:#bbb">
-	basically you can create thumnail easily 
+	Thumbnail creator for Rolling Sky. You can use this utility to create your own thumbnails for your levels.
+	</font>
+	<br>
+
+	<font size="1" style="color:#666666">
+	Special thanks to Mr. RSGD for the original utility tool.
 	</font>
 	</p><br>
 	
@@ -30,16 +35,55 @@
 	</div>
 	<div class="previewtn">
 		<input type="file" class="input_tn" accept="image/*" hidden>
-			<button class="button_tn">Choose Thumnail</button>
+			<button class="button_tn">Choose Cover/WorldShow</button>
 			<label id="labletnex">
-			<font size="3" style="color:#888">Better crop worldshow from the game</font>
+			<font size="3" style="color:#888">Either crop the WorldShow from the game, or use a raw WorldShow image that you have gotten from .cmr files or some other source.</font>
 			</label>
 			<br><br>
 			
 			    <font id="tnimgcode"><img  id="tnimg" src="img.jpg" width="400" height="400" alt="previewtn"></font>
 			<br>
 			
-	</div> <br>
+	</div>
+	<div class="previewgp">
+		<input type="file" class="input_gp" accept="image/*" hidden>
+
+		<button class="button_gp">Choose Gameplay Frame (for NEW layouts only)</button>
+		<label id="lablegpex">
+		<font size="3" style="color:#888">Any frame of gameplay from the level works, though a widescreen frame is recommended.</font>
+		</label>
+		<br><br>
+		<font id="gpimgcode"><img  id="gpimg" src="img.jpg" width="400" height="400" alt="previewgp"></font>
+
+		<br>
+	</div><br>
+
+	<font class="checkbox-wrapper-46">
+		<input class="inp-cbx" id="showLevelText" type="checkbox" checked>
+		<label class="cbx" for="showLevelText">
+			<span>
+				<svg width="20px" height="20px" viewbox="0 0 12 10">
+					<polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+				</svg>
+			</span>
+		</label>
+	</font>
+
+	<span class="enablecrown">Show Level Number</span>
+
+	<font class="checkbox-wrapper-46">
+		<input class="inp-cbx" id="showNewTag" type="checkbox" checked>
+		<label class="cbx" for="showNewTag">
+			<span>
+				<svg width="20px" height="20px" viewbox="0 0 12 10">
+					<polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+				</svg>
+			</span>
+		</label>
+	</font>
+
+	<span class="enablecrown">Show NEW Tag</span>
+
 	<div class="entrelvlnameclass">
 	    <font id="entrelvlname">
             <input type="text" onkeypress="onchange()" onchange="onTypeInfo()" class="textbox" id="lvlname" name="fname" placeholder="Level Name" style="color:#000000">
@@ -97,8 +141,6 @@
 			<font size="3" style="color:#888">Crown Number</font>
 		</label>
 	</div> <br><br>
-		
-		
 		
 		<table border="0" style="padding: 0 0 15 0;">
 		<tr><td style="padding: 0px;">
@@ -176,7 +218,7 @@
 	
 
 	<div class="lvlno" id="lvlno"><font size="6">
-	    <input type="number" min="0" max="99" onchange="onTypeInfo()" class="textbox6" id="lvlno1" name="fname2" placeholder="10" style="color:#000000">/<input type="number" min="0" max="99" onchange="onTypeInfo()" class="textbox7" id="lvlno2" name="fname2" placeholder="10" style="color:#000000">
+	    <input type="number" min="0" max="999" onchange="onTypeInfo()" class="textbox6" id="lvlno1" name="fname2" placeholder="10" style="color:#000000">/<input type="number" min="0" max="999" onchange="onTypeInfo()" class="textbox7" id="lvlno2" name="fname2" placeholder="10" style="color:#000000">
 	</font> <font size="3" style="color:#888">Levels Count</font> </div><br>
 	
 	<div class="difficulty" id="difficulty">
@@ -192,23 +234,316 @@
 			<font size="3" style="color:#888">Difficulty</font>
 		</label>
 	</div> <br>
-	
-	<font class="checkbox-wrapper-64">
-        <label class="switch">
-            <input type="checkbox" id="UIchoosecheckbox">
-            <span class="slider"></span>
-        </label>
-    </font>
-	<label id="UIchoose">
-	    <span class="enablecrown">UI: Normal</span>
-	</label><br><br>
+
+	<!-- PANEL GRADIENT BORDER COLOR CHANGES -->
+
+	<table border="0">
+	<tr><td>
+
+	<p>
+		<input type="range"
+			min="0" max="360" value="0"
+			class="sliderR"
+			id="newH1"
+			oninput="onPanelGradientChange('new', 1)"
+			style="background: linear-gradient(to right, red 0%, #ff0 17%, lime 33%, cyan 50%, blue 66%, #f0f 83%, red 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderG"
+			id="newS1"
+			oninput="onPanelGradientChange('new', 1)"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderB"
+			id="newB1"
+			oninput="onPanelGradientChange('new', 1)"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)">
+	</p>
+
+	</td><td>
+
+	<p>
+		<input type="number"
+			min="0" max="360"
+			class="H11"
+			id="panelGradientH1Num"
+			onchange="onPanelGradientChange('new', 1)"
+			value="0">
+		<font size="4" style="color:#888">H</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H12"
+			id="panelGradientS1Num"
+			onchange="onPanelGradientChange('new', 1)"
+			value="0">
+		<font size="4" style="color:#888">S</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H13"
+			id="panelGradientB1Num"
+			onchange="onPanelGradientChange('new', 1)"
+			value="0">
+		<font size="4" style="color:#888">B</font>
+	</p>
+
+	</td></tr>
+	</table>
+
+	<label style="color:#888">Panel Border Gradient Color 1</label>
+
+	<br><br><br>
+
+	<table border="0">
+	<tr><td>
+
+	<p>
+		<input type="range"
+			min="0" max="360" value="0"
+			class="sliderR2"
+			id="newH2"
+			oninput="onPanelGradientChange('new', 2)"
+			style="background: linear-gradient(to right, red 0%, #ff0 17%, lime 33%, cyan 50%, blue 66%, #f0f 83%, red 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderG2"
+			id="newS2"
+			oninput="onPanelGradientChange('new', 2)"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderB2"
+			id="newB2"
+			oninput="onPanelGradientChange('new', 2)"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)">
+	</p>
+
+	</td><td>
+
+	<p>
+		<input type="number"
+			min="0" max="360"
+			class="H21"
+			id="panelGradientH2Num"
+			onchange="onPanelGradientChange('new', 2)"
+			value="0">
+		<font size="4" style="color:#888">H</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H22"
+			id="panelGradientS2Num"
+			onchange="onPanelGradientChange('new', 2)"
+			value="0">
+		<font size="4" style="color:#888">S</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H23"
+			id="panelGradientB2Num"
+			onchange="onPanelGradientChange('new', 2)"
+			value="0">
+		<font size="4" style="color:#888">B</font>
+	</p>
+
+	</td></tr>
+	</table>
+
+	<label style="color:#888">Panel Border Gradient Color 2</label>
+
+	<br><br><br>
+
+	<!-- STAR OVERLAY GRADIENT COLOR 1 -->
+	<table border="0">
+	<tr><td>
+
+	<p>
+		<input type="range"
+			min="0" max="360" value="0"
+			class="sliderR"
+			id="gradientH1"
+			oninput="onStarGradientColorChange()"
+			style="background: linear-gradient(to right, red 0%, #ff0 17%, lime 33%, cyan 50%, blue 66%, #f0f 83%, red 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderG"
+			id="gradientS1"
+			oninput="onStarGradientColorChange()"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderB"
+			id="gradientB1"
+			oninput="onStarGradientColorChange()"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)">
+	</p>
+
+	</td><td>
+
+	<p>
+		<input type="number"
+			min="0" max="360"
+			class="H11"
+			id="gradientH1Num"
+			onchange="onStarGradientColorChange()"
+			value="0">
+		<font size="4" style="color:#888">H</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H12"
+			id="gradientS1Num"
+			onchange="onStarGradientColorChange()"
+			value="0">
+		<font size="4" style="color:#888">S</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H13"
+			id="gradientB1Num"
+			onchange="onStarGradientColorChange()"
+			value="0">
+		<font size="4" style="color:#888">B</font>
+	</p>
+
+	</td></tr>
+	</table>
+
+	<label style="color:#888">Star Overlay Gradient Color 1</label>
+
+	<br><br><br>
+
+
+	<!-- STAR OVERLAY GRADIENT COLOR 2 -->
+	<table border="0">
+	<tr><td>
+
+	<p>
+		<input type="range"
+			min="0" max="360" value="0"
+			class="sliderR2"
+			id="gradientH2"
+			oninput="onStarGradientColorChange()"
+			style="background: linear-gradient(to right, red 0%, #ff0 17%, lime 33%, cyan 50%, blue 66%, #f0f 83%, red 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderG2"
+			id="gradientS2"
+			oninput="onStarGradientColorChange()"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)">
+	</p>
+
+	<p>
+		<input type="range"
+			min="0" max="100" value="0"
+			class="sliderB2"
+			id="gradientB2"
+			oninput="onStarGradientColorChange()"
+			style="background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)">
+	</p>
+
+	</td><td>
+
+	<p>
+		<input type="number"
+			min="0" max="360"
+			class="H21"
+			id="gradientH2Num"
+			onchange="onStarGradientColorChange()"
+			value="0">
+		<font size="4" style="color:#888">H</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H22"
+			id="gradientS2Num"
+			onchange="onStarGradientColorChange()"
+			value="0">
+		<font size="4" style="color:#888">S</font>
+	</p>
+
+	<p>
+		<input type="number"
+			min="0" max="100"
+			class="H23"
+			id="gradientB2Num"
+			onchange="onStarGradientColorChange()"
+			value="0">
+		<font size="4" style="color:#888">B</font>
+	</p>
+
+	</td></tr>
+	</table>
+
+	<label style="color:#888">Star Overlay Gradient Color 2</label>
+
+	<br><br>
+
+	<div class="ui-buttons">
+		<button class="ui-button active" data-ui="normal" type="button">
+			Normal (Old RSGD Style)
+		</button>
+
+		<button class="ui-button" data-ui="levelList" type="button">
+			Level List
+		</button>
+
+		<button class="ui-button" data-ui="new" type="button">
+			Alternate (New RSGD Style)
+		</button>
+	</div>
 	
 	</td></tr></table>
 	
 	<font size="7" style="color:#000; font-family: Sen-Bold;">Product</font><br>
-	<font class="showcase" id="showcase">
-		<canvas width="16" height="9" class="product "id="product">Canvas</canvas>
-	</font>
+	<div class="showcase" id="showcase">
+		<canvas width="16" height="9" class="product" id="product">
+			Canvas
+		</canvas>
+	</div>
+
+	<br>
+	
+	<button id="downloadBtn" type="button">
+		Download
+	</button>
 	
 	<div class="debug">
 	Debug:

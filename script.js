@@ -1,5 +1,7 @@
+var currentUI = "normal";
 var isimportedbg = 0;
 var isimportedtn = 0;
+var isimportedgp = 0;
 var crowncount = 0;
 var starcount = 1;
 product = document.querySelector("canvas.product");
@@ -30,6 +32,9 @@ choosebgBtn = document.querySelector(".button_bg");
 const fileInputtn = document.querySelector(".input_tn");
 previewtn = document.querySelector(".previewtn img");
 choosetnBtn = document.querySelector(".button_tn");
+const fileInputgp = document.querySelector(".input_gp");
+const previewgp = document.querySelector("#gpimg");
+const choosegpBtn = document.querySelector(".button_gp");
 
 labelbgexplain = document.getElementById('lablebgex');
 labeltnexplain = document.getElementById('labletnex');
@@ -55,6 +60,22 @@ previewbg.onload = function() {
 	onchange();
 }
 
+const loadImagegp = () => {
+
+    let filegp = fileInputgp.files[0];
+    if(!filegp) return;
+    console.log(filegp);
+    const gpURL = URL.createObjectURL(filegp);
+    previewgp.src = gpURL;
+    document.getElementById("lablegpex").innerHTML =
+        '<font size="3" style="color:#888">Import done!</font>';
+    isimportedgp = 1;
+};
+
+previewgp.onload = function() {
+    onchange();
+};
+
 const loadImagetn = () => {
 	let filetn = fileInputtn.files[0];
 	if(!filetn) return;
@@ -71,9 +92,11 @@ previewtn.onload = function() {
 
 fileInputbg.addEventListener("change", loadImagebg);
 fileInputtn.addEventListener("change", loadImagetn);
+fileInputgp.addEventListener("change", loadImagegp);
 
-choosebgBtn.addEventListener("click",() => fileInputbg.click());
-choosetnBtn.addEventListener("click",() => fileInputtn.click());
+choosebgBtn.addEventListener("click", () => fileInputbg.click());
+choosetnBtn.addEventListener("click", () => fileInputtn.click());
+choosegpBtn.addEventListener("click", () => fileInputgp.click());
 
 const inputH = document.querySelector('input.sliderR');
 const inputS = document.querySelector('input.sliderG');
@@ -376,6 +399,8 @@ var img = new Image;
 img.src = imgtrue.src;
 var imgtn = new Image;
 imgtn.src = previewtn.src;
+var imggp = new Image;
+imggp.src = isimportedgp ? previewgp.src : "GameplayFrame.png";
 var diaR = new Image;
 diaR.src = "Diamond_R.png";
 var diaG = new Image;
@@ -394,8 +419,11 @@ function onchange(){
 	
 	product.getContext("2d").reset();
 	
-	if(UIchoosecheckbox.checked){
+	if(currentUI === "levelList"){
 		levellist();
+		return;
+	} else if(currentUI === "new"){
+		newstyle();
 		return;
 	}
 	
@@ -683,11 +711,11 @@ function onchange(){
 var levellistbg = new Image;
 levellistbg.src = "levellistbg.png";
 
-for (let i = 0; i < 6; i++){
 var star = [];
-star[i] = new Image;
-star[i].src = "star.png";
-console.log(star[i]);
+
+for(let i = 0; i < 6; i++){
+    star[i] = new Image();
+    star[i].src = "star.png";
 }
 
 
@@ -868,6 +896,1469 @@ var dy = debugypos.value/1000;
 	ctx.fillText(productpercent, perxpos, perypos);
 }
 
+function newstyle(){
+
+    // Canvas dimensions
+    const W = product.width;
+    const H = product.height;
+
+	// --------------------------------------------------
+	// CREATING A PANEL BORDER GRADIENT
+	// Shared by all three panels
+	// --------------------------------------------------
+
+	const panelRGB1 = HSBtoRGB(
+		document.getElementById("newH1").value,
+		document.getElementById("newS1").value,
+		document.getElementById("newB1").value
+	);
+
+	const panelRGB2 = HSBtoRGB(
+		document.getElementById("newH2").value,
+		document.getElementById("newS2").value,
+		document.getElementById("newB2").value
+	);
+
+
+	// Vertical gradient across the entire canvas
+	const panelBorderGradient = ctx.createLinearGradient(
+		0,
+		0,
+		0,
+		H
+	);
+
+	panelBorderGradient.addColorStop(
+		0,
+		`rgb(${panelRGB1[0]}, ${panelRGB1[1]}, ${panelRGB1[2]})`
+	);
+
+	panelBorderGradient.addColorStop(
+		1,
+		`rgb(${panelRGB2[0]}, ${panelRGB2[1]}, ${panelRGB2[2]})`
+	);
+
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.filter = "none";
+
+    // --------------------------------------------------
+	// BACKGROUND
+	// --------------------------------------------------
+
+	let backgroundImage;
+
+	if(isimportedbg == 1){
+
+		// Imported background
+		backgroundImage = previewbg;
+
+	}
+	else{
+
+		// Default background
+		img.src = "Massif.png";
+		backgroundImage = img;
+
+	}
+
+	if(
+		backgroundImage &&
+		backgroundImage.naturalWidth > 0 &&
+		backgroundImage.naturalHeight > 0
+	){
+
+		const imageRatio =
+			backgroundImage.naturalWidth /
+			backgroundImage.naturalHeight;
+
+		const canvasRatio = W / H;
+
+		let drawW;
+		let drawH;
+
+		// Cover the whole canvas
+		if(imageRatio > canvasRatio){
+
+			drawH = H;
+			drawW = H * imageRatio;
+
+		}
+		else{
+
+			drawW = W;
+			drawH = W / imageRatio;
+
+		}
+
+		// --------------------------------------------------
+		// BLURRED BACKGROUND
+		// --------------------------------------------------
+
+		ctx.save();
+
+		ctx.filter = "blur(1px)";
+
+		ctx.drawImage(
+			backgroundImage,
+			(W - drawW) / 5,
+			(H - drawH) / 5,
+			drawW,
+			drawH
+		);
+
+		ctx.restore();
+
+
+		// --------------------------------------------------
+		// DARKEN BACKGROUND
+		// --------------------------------------------------
+
+		ctx.save();
+
+		ctx.globalAlpha = 0.45;
+		ctx.fillStyle = "black";
+
+		ctx.fillRect(
+			0,
+			0,
+			W,
+			H
+		);
+
+		ctx.restore();
+
+	}
+
+
+    // --------------------------------------------------
+	// RIGHT-SIDE BACKGROUND IMAGE
+	// --------------------------------------------------
+
+	ctx.save();
+
+	ctx.beginPath();
+
+	ctx.moveTo(W * 0.745, 0);
+	ctx.lineTo(W, 0);
+	ctx.lineTo(W, H);
+	ctx.lineTo(W * 0.66, H);
+
+	ctx.closePath();
+
+	ctx.clip();
+
+	// Use imported background if available
+	const rightImage = isimportedtn ? previewtn : imgtn;
+
+	if (
+		rightImage.naturalWidth > 0 &&
+		rightImage.naturalHeight > 0
+	) {
+
+		// Fixed display size for the right-side image.
+		// This stays the same regardless of the imported image dimensions.
+		const iw = W * 0.39;
+		const ih = H * 1;
+
+		const imageRatio = rightImage.naturalWidth / rightImage.naturalHeight;
+		const targetRatio = iw / ih;
+
+		let sx, sy, sw, sh;
+
+		if (imageRatio > targetRatio) {
+			sh = rightImage.naturalHeight;
+			sw = sh * targetRatio;
+			sx = (rightImage.naturalWidth - sw) / 2;
+			sy = 0;
+		} else {
+			sw = rightImage.naturalWidth;
+			sh = sw / targetRatio;
+			sx = 0;
+			sy = (rightImage.naturalHeight - sh) / 2;
+		}
+
+		ctx.drawImage(
+			rightImage,
+			sx,
+			sy,
+			sw,
+			sh,
+			W - iw * 0.92,
+			(H - ih) / 2,
+			iw,
+			ih
+		);
+	}
+
+	ctx.restore();
+
+
+	// --------------------------------------------------
+	// SEPARATOR
+	// --------------------------------------------------
+
+	ctx.beginPath();
+
+	ctx.moveTo(W * 0.745, 0);
+	ctx.lineTo(W * 0.752, 0);
+	ctx.lineTo(W * 0.662, H);
+	ctx.lineTo(W * 0.655, H);
+
+	ctx.closePath();
+
+	ctx.fillStyle = panelBorderGradient;
+	ctx.fill();
+
+	// --------------------------------------------------
+	// TOP LEFT LEVEL PANEL
+	// --------------------------------------------------
+
+	ctx.save();
+
+	ctx.beginPath();
+
+	ctx.moveTo(W * 0.05, H * 0.06);
+	ctx.lineTo(W * 0.36, H * 0.06);
+	ctx.lineTo(W * 0.34, H * 0.325);
+	ctx.lineTo(W * 0.05, H * 0.325);
+	ctx.closePath();
+
+	// Fill panel using the top-center of the background
+	ctx.save();
+
+	ctx.clip();
+
+	const panelImage = isimportedbg == 1 ? previewbg : img;
+
+	const panelW = W * 0.31;
+	const panelH = H * 0.265;
+
+	const panelRatio = panelW / panelH;
+
+	// Change this to control zoom
+	const zoom = 4.5;
+
+	// Keep the source crop at the same aspect ratio as the panel
+	const cropH = panelImage.naturalHeight * 0.50 / zoom;
+	const cropW = cropH * panelRatio;
+
+	// Center the crop horizontally
+	const cropX = (panelImage.naturalWidth - cropW) / 2;
+
+	// Start from the top of the background
+	const cropY = panelImage.naturalHeight * 0.05;
+
+	ctx.drawImage(
+		panelImage,
+
+		// SOURCE CROP
+		cropX,
+		cropY,
+		cropW,
+		cropH,
+
+		// PANEL
+		W * 0.05,
+		H * 0.06,
+		panelW,
+		panelH
+	);
+
+	ctx.globalAlpha = 0.45;
+	ctx.fillStyle = "black";
+
+	ctx.fillRect(
+		W * 0.05,
+		H * 0.06,
+		W * 0.31,
+		H * 0.265
+	);
+
+	ctx.globalAlpha = 1;
+
+	ctx.restore();
+
+	ctx.lineWidth = W * 0.006;
+	ctx.strokeStyle = panelBorderGradient;
+	ctx.stroke();
+
+	ctx.restore();
+
+    // --------------------------------------------------
+	// TOP LEFT LEVEL NAME
+	// --------------------------------------------------
+
+	let productlvlname = inputtext.value;
+
+	if(productlvlname == ""){
+		productlvlname = "Massif";
+	}
+
+	// Convert H/S/B to HSL
+	let h1 = H11.value / 360;
+	let s1 = H12.value / 100;
+	let b1 = H13.value / 100;
+
+	let l1 = (2 - s1) * b1 / 2;
+
+	if(l1 != 0){
+
+		if(l1 == 1){
+			s1 = 0;
+		}
+		else if(l1 < 0.5){
+			s1 = s1 * b1 / (l1 * 2);
+		}
+		else{
+			s1 = s1 * b1 / (2 - l1 * 2);
+		}
+	}
+
+	const levelColor =
+		"hsl(" +
+		(h1 * 360) + "," +
+		(s1 * 100) + "%," +
+		(l1 * 100) + "%)";
+
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+
+	// --------------------------------------------------
+	// TITLE POSITION / SIZE
+	// --------------------------------------------------
+
+	const levelNameX = W * 0.205;
+
+	// Available width inside the left panel
+	const levelNameMaxWidth = W * 0.30;
+
+	// Normal title size
+	let levelNameFontSize = H * 0.085;
+
+	// If crowns are enabled, leave room for the crown row
+	const titleMaxHeight = iscrowncheckbox.checked
+		? H * 0.125
+		: H * 0.20;
+	
+	// --------------------------------------------------
+	// FONT SIZE BASED ON NAME LENGTH
+	// --------------------------------------------------
+
+	const nameLength = productlvlname.length;
+
+	// Names up to 10 characters keep the normal size
+	if(nameLength > 10){
+
+		levelNameFontSize =
+			H * 0.085 * (10 / nameLength);
+
+	}
+
+
+	// --------------------------------------------------
+	// AUTOMATIC TITLE WRAPPING
+	// --------------------------------------------------
+
+	ctx.font = "bold " + levelNameFontSize + "px Sen-Bold";
+
+	// First try the complete title on one line
+	let titleLines = [productlvlname];
+
+
+	// If the title is too wide, try splitting it into two lines
+	if(ctx.measureText(productlvlname).width > levelNameMaxWidth){
+
+		let words = productlvlname.split(" ");
+
+		if(words.length > 1){
+
+			let bestLine1 = "";
+			let bestLine2 = "";
+			let bestDifference = Infinity;
+
+			for(let i = 1; i < words.length; i++){
+
+				let line1 = words.slice(0, i).join(" ");
+				let line2 = words.slice(i).join(" ");
+
+				let width1 = ctx.measureText(line1).width;
+				let width2 = ctx.measureText(line2).width;
+
+				// Ignore splits where either line is too wide
+				if(width1 <= levelNameMaxWidth &&
+				width2 <= levelNameMaxWidth){
+
+					let difference = Math.abs(width1 - width2);
+
+					if(difference < bestDifference){
+
+						bestDifference = difference;
+						bestLine1 = line1;
+						bestLine2 = line2;
+					}
+				}
+			}
+
+			if(bestLine1 != ""){
+				titleLines = [bestLine1, bestLine2];
+			}
+		}
+	}
+
+
+	// --------------------------------------------------
+	// IF STILL TOO WIDE → SHRINK THE FONT
+	// --------------------------------------------------
+
+	if(titleLines.length == 1){
+
+		while(
+			ctx.measureText(titleLines[0]).width > levelNameMaxWidth &&
+			levelNameFontSize > H * 0.040
+		){
+
+			levelNameFontSize -= H * 0.005;
+
+			ctx.font =
+				"bold " +
+				levelNameFontSize +
+				"px Sen-Bold";
+		}
+	}
+	else{
+
+		// Make sure both lines fit comfortably
+		while(
+			(
+				ctx.measureText(titleLines[0]).width > levelNameMaxWidth ||
+				ctx.measureText(titleLines[1]).width > levelNameMaxWidth
+			) &&
+			levelNameFontSize > H * 0.040
+		){
+
+			levelNameFontSize -= H * 0.0035;
+
+			ctx.font =
+				"bold " +
+				levelNameFontSize +
+				"px Sen-Bold";
+		}
+	}
+
+	// --------------------------------------------------
+	// FINAL WIDTH SAFETY CHECK
+	// --------------------------------------------------
+
+	while(
+		ctx.measureText(titleLines[0]).width > levelNameMaxWidth &&
+		levelNameFontSize > H * 0.040
+	){
+		levelNameFontSize -= H * 0.003;
+
+		ctx.font =
+			"bold " +
+			levelNameFontSize +
+			"px Sen-Bold";
+	}
+
+	if(titleLines.length == 2){
+
+		while(
+			(
+				ctx.measureText(titleLines[0]).width > levelNameMaxWidth ||
+				ctx.measureText(titleLines[1]).width > levelNameMaxWidth
+			) &&
+			levelNameFontSize > H * 0.040
+		){
+			levelNameFontSize -= H * 0.002;
+
+			ctx.font =
+				"bold " +
+				levelNameFontSize +
+				"px Sen-Bold";
+		}
+	}
+
+
+	// --------------------------------------------------
+	// TITLE VERTICAL POSITION
+	// --------------------------------------------------
+
+	let lineHeight = levelNameFontSize * 0.90;
+
+	let levelNameY;
+
+	if(iscrowncheckbox.checked){
+
+		// Title stays above the crowns
+		if(titleLines.length == 1){
+
+			levelNameY = H * 0.135;
+
+		}
+		else{
+
+			// Two-line title gets slightly more room
+			levelNameY = H * 0.125;
+		}
+
+	}
+	else{
+
+		// No crowns → title centered vertically in the panel
+		if(titleLines.length == 1){
+
+			levelNameY = H * 0.195;
+
+		}
+		else{
+
+			levelNameY = H * 0.195;
+		}
+	}
+
+
+	// --------------------------------------------------
+	// COLORED GLOW
+	// --------------------------------------------------
+
+	ctx.save();
+
+	ctx.shadowColor = levelColor;
+	ctx.shadowBlur = H * 0.035;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+
+	ctx.fillStyle = levelColor;
+
+
+	// One line
+	if(titleLines.length == 1){
+
+		ctx.fillText(
+			titleLines[0],
+			levelNameX,
+			levelNameY
+		);
+
+	}
+
+
+	// Two lines
+	else{
+
+		ctx.fillText(
+			titleLines[0],
+			levelNameX,
+			levelNameY - lineHeight / 2
+		);
+
+		ctx.fillText(
+			titleLines[1],
+			levelNameX,
+			levelNameY + lineHeight / 2
+		);
+
+	}
+
+	ctx.restore();
+
+
+	// --------------------------------------------------
+	// CROWNS
+	// --------------------------------------------------
+
+	if(iscrowncheckbox.checked){
+
+		if(crowncount == 3){
+
+			imgcrown1.src = "CrownOk.png";
+			imgcrown2.src = "CrownOk.png";
+			imgcrown3.src = "CrownOk.png";
+
+		}
+		else if(crowncount == 2){
+
+			imgcrown1.src = "CrownOk.png";
+			imgcrown2.src = "CrownOk.png";
+			imgcrown3.src = "CrownUn.png";
+
+		}
+		else if(crowncount == 1){
+
+			imgcrown1.src = "CrownOk.png";
+			imgcrown2.src = "CrownUn.png";
+			imgcrown3.src = "CrownUn.png";
+
+		}
+		else{
+
+			imgcrown1.src = "CrownUn.png";
+			imgcrown2.src = "CrownUn.png";
+			imgcrown3.src = "CrownUn.png";
+
+		}
+
+
+		// Slightly bigger crowns
+		const crownSize = H * 0.095;
+
+		// Keep them close together
+		const crownY = H * 0.195;
+
+		ctx.drawImage(
+			imgcrown1,
+			W * 0.120,
+			crownY,
+			crownSize,
+			crownSize
+		);
+
+		ctx.drawImage(
+			imgcrown2,
+			W * 0.177,
+			crownY,
+			crownSize,
+			crownSize
+		);
+
+		ctx.drawImage(
+			imgcrown3,
+			W * 0.235,
+			crownY,
+			crownSize,
+			crownSize
+		);
+	}
+
+	// --------------------------------------------------
+	// TOP RIGHT STAT PANEL
+	// --------------------------------------------------
+
+	ctx.save();
+
+	ctx.beginPath();
+
+	ctx.moveTo(W * 0.39, H * 0.06);
+	ctx.lineTo(W * 0.685, H * 0.06);
+	ctx.lineTo(W * 0.665, H * 0.325);
+	ctx.lineTo(W * 0.37, H * 0.325);
+	ctx.closePath();
+
+	// Fill panel using the bottom-center of the background
+	ctx.save();
+
+	ctx.clip();
+
+	const rightPanelImage = isimportedbg == 1 ? previewbg : img;
+
+	const rightPanelW = W * 0.315;
+	const rightPanelH = H * 0.265;
+
+	const rightPanelRatio = rightPanelW / rightPanelH;
+
+	// Same zoom as left panel
+	const rightZoom = 4.5;
+
+	// Keep source crop at the same aspect ratio as panel
+	const rightCropH =
+		rightPanelImage.naturalHeight * 0.50 / rightZoom;
+
+	const rightCropW =
+		rightCropH * rightPanelRatio;
+
+	// Center the crop horizontally
+	const rightCropX =
+		(rightPanelImage.naturalWidth - rightCropW) / 2;
+
+	// Start from the BOTTOM of the background
+	const rightCropY =
+		rightPanelImage.naturalHeight - rightCropH;
+
+	ctx.drawImage(
+		rightPanelImage,
+
+		// SOURCE CROP
+		rightCropX,
+		rightCropY,
+		rightCropW,
+		rightCropH,
+
+		// PANEL
+		W * 0.37,
+		H * 0.06,
+		rightPanelW,
+		rightPanelH
+	);
+
+	// Tint
+	ctx.globalAlpha = 0.45;
+	ctx.fillStyle = "black";
+
+	ctx.fillRect(
+		W * 0.37,
+		H * 0.06,
+		rightPanelW,
+		rightPanelH
+	);
+
+	ctx.globalAlpha = 1;
+
+	ctx.restore();
+
+	ctx.lineWidth = W * 0.006;
+	ctx.strokeStyle = panelBorderGradient;
+	ctx.stroke();
+
+	ctx.restore();
+
+	// --------------------------------------------------
+	// PERCENTAGE
+	// --------------------------------------------------
+
+	let productpercent = inputtext5.value;
+
+	if(productpercent == ""){
+		productpercent = "100";
+	}
+
+	productpercent += "%";
+
+	// Convert percentage HSB values to HSL
+	let h3 = H31.value / 360;
+	let s3 = H32.value / 100;
+	let b3 = H33.value / 100;
+
+	let l3 = (2 - s3) * b3 / 2;
+
+	if(l3 != 0){
+		if(l3 == 1){
+			s3 = 0;
+		}
+		else if(l3 < 0.5){
+			s3 = s3 * b3 / (l3 * 2);
+		}
+		else{
+			s3 = s3 * b3 / (2 - l3 * 2);
+		}
+	}
+
+	const percentageColor =
+		"hsl(" +
+		(h3 * 360) + "," +
+		(s3 * 100) + "%," +
+		(l3 * 100) + "%)";
+
+	ctx.save();
+
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+
+	ctx.font = "bold " + (H * 0.122) + "px Sen-Bold";
+
+	// --------------------------------------------------
+	// SHADOW
+	// --------------------------------------------------
+
+	ctx.globalAlpha = 0.35;
+	ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+
+	ctx.fillText(
+		productpercent,
+		W * 0.527 + W * 0.004,
+		H * 0.140 + H * 0.006
+	);
+
+	// --------------------------------------------------
+	// MAIN TEXT
+	// --------------------------------------------------
+
+	ctx.globalAlpha = 1;
+	ctx.fillStyle = percentageColor;
+
+	ctx.fillText(
+		productpercent,
+		W * 0.527,
+		H * 0.140
+	);
+
+	ctx.restore();
+
+
+	// --------------------------------------------------
+	// DIAMONDS
+	// --------------------------------------------------
+
+	let DiaCount = inputtext2.value;
+	let MaxCount = inputtext3.value;
+
+	if(DiaCount == ""){
+		DiaCount = "20";
+	}
+
+	if(MaxCount == ""){
+		MaxCount = "20";
+	}
+
+
+	// --------------------------------------------------
+	// CONVERT GEM HSB → HSL
+	// --------------------------------------------------
+
+	let h2 = H21.value / 360;
+	let s2 = H22.value / 100;
+	let b2 = H23.value / 100;
+
+	let l2 = (2 - s2) * b2 / 2;
+
+	if(l2 != 0){
+		if(l2 == 1){
+			s2 = 0;
+		}
+		else if(l2 < 0.5){
+			s2 = s2 * b2 / (l2 * 2);
+		}
+		else{
+			s2 = s2 * b2 / (2 - l2 * 2);
+		}
+	}
+
+
+	// --------------------------------------------------
+	// CONVERT HSL → RGB
+	// --------------------------------------------------
+
+	let r, g, b;
+
+	if(s2 == 0){
+
+		r = g = b = l2;
+
+	}
+	else{
+
+		const hue2rgb = function(p, q, t){
+
+			if(t < 0) t += 1;
+			if(t > 1) t -= 1;
+
+			if(t < 1/6)
+				return p + (q - p) * 6 * t;
+
+			if(t < 1/2)
+				return q;
+
+			if(t < 2/3)
+				return p + (q - p) * (2/3 - t) * 6;
+
+			return p;
+		};
+
+		let q =
+			l2 < 0.5
+				? l2 * (1 + s2)
+				: l2 + s2 - l2 * s2;
+
+		let p = 2 * l2 - q;
+
+		r = hue2rgb(p, q, h2 + 1/3);
+		g = hue2rgb(p, q, h2);
+		b = hue2rgb(p, q, h2 - 1/3);
+	}
+
+
+	// --------------------------------------------------
+	// DIAMOND
+	// --------------------------------------------------
+
+	const diamondSize = H * 0.082;
+
+	ctx.save();
+
+	// Completely isolate diamond from previous effects
+	ctx.globalAlpha = 1;
+	ctx.globalCompositeOperation = "source-over";
+
+	ctx.shadowColor = "rgba(0,0,0,0)";
+	ctx.shadowBlur = 0;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+
+	ctx.filter = "none";
+
+	// Base diamond
+	ctx.drawImage(
+		diaT,
+		W * 0.437,
+		H * 0.218,
+		diamondSize,
+		diamondSize
+	);
+
+	// RGB color layers
+	ctx.globalCompositeOperation = "screen";
+
+	ctx.globalAlpha = r;
+
+	ctx.drawImage(
+		diaR,
+		W * 0.437,
+		H * 0.218,
+		diamondSize,
+		diamondSize
+	);
+
+	ctx.globalAlpha = g;
+
+	ctx.drawImage(
+		diaG,
+		W * 0.437,
+		H * 0.218,
+		diamondSize,
+		diamondSize
+	);
+
+	ctx.globalAlpha = b;
+
+	ctx.drawImage(
+		diaB,
+		W * 0.437,
+		H * 0.218,
+		diamondSize,
+		diamondSize
+	);
+
+	ctx.restore();
+
+
+	// --------------------------------------------------
+	// DIAMOND COUNT
+	// --------------------------------------------------
+
+	ctx.textAlign = "left";
+	ctx.fillStyle =
+		"hsl(" +
+		(h2 * 360) + "," +
+		(s2 * 100) + "%," +
+		(l2 * 100) + "%)";
+
+	// Current diamonds (left side) - bigger, shifted right and up
+	ctx.font = "bold " + (H * 0.095) + "px Sen-Bold";
+
+	const diamondTextX = W * 0.492;
+	const diamondTextY = H * 0.27;
+
+	ctx.fillText(
+		DiaCount,
+		diamondTextX,
+		diamondTextY
+	);
+
+	// Maximum diamonds (/20) - stays in its current position
+	const diaCountWidth = ctx.measureText(DiaCount).width;
+
+	ctx.font = "bold " + (H * 0.06) + "px Sen-Bold";
+
+	ctx.fillText(
+		"/" + MaxCount,
+		W * 0.494 + diaCountWidth,
+		H * 0.279
+	);
+
+	// --------------------------------------------------
+	// MAIN THUMBNAIL PANEL
+	// --------------------------------------------------
+
+	ctx.save();
+
+	ctx.beginPath();
+
+	ctx.moveTo(W * 0.05, H * 0.385);
+	ctx.lineTo(W * 0.66, H * 0.385);
+	ctx.lineTo(W * 0.62, H * 0.94);
+	ctx.lineTo(W * 0.05, H * 0.94);
+
+	ctx.closePath();
+	ctx.clip();
+
+
+	// --------------------------------------------------
+	// CHOOSE IMAGE
+	// --------------------------------------------------
+
+	let mainImage;
+
+	if(isimportedgp == 1){
+		mainImage = previewgp;
+	}
+	else{
+		mainImage = imggp;
+	}
+
+
+	// --------------------------------------------------
+	// DRAW IMAGE
+	// --------------------------------------------------
+
+	if(
+		mainImage &&
+		mainImage.naturalWidth > 0 &&
+		mainImage.naturalHeight > 0
+	){
+
+		const panelX = W * 0.055;
+		const panelY = H * 0.385;
+		const panelW = W * 0.605;
+		const panelH = H * 0.555;
+
+		const imageRatio =
+			mainImage.naturalWidth /
+			mainImage.naturalHeight;
+
+		const panelRatio =
+			panelW /
+			panelH;
+
+		let drawW;
+		let drawH;
+
+		if(imageRatio > panelRatio){
+
+			drawH = panelH;
+			drawW = drawH * imageRatio;
+
+		}
+		else{
+
+			drawW = panelW;
+			drawH = drawW / imageRatio;
+
+		}
+
+		ctx.drawImage(
+			mainImage,
+			panelX + (panelW - drawW) / 2,
+			panelY + (panelH - drawH) / 2,
+			drawW,
+			drawH
+		);
+	}
+
+	ctx.restore();
+
+
+    // --------------------------------------------------
+    // THUMBNAIL BORDER
+    // --------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(W * 0.05, H * 0.385);
+    ctx.lineTo(W * 0.66, H * 0.385);
+    ctx.lineTo(W * 0.62, H * 0.94);
+    ctx.lineTo(W * 0.05, H * 0.94);
+    ctx.closePath();
+
+    ctx.lineWidth = W * 0.006;
+    ctx.strokeStyle = panelBorderGradient;
+    ctx.stroke();
+
+
+	// --------------------------------------------------
+	// NEW LABEL
+	// --------------------------------------------------
+
+	if(showNewTag.checked){
+
+		// --------------------------------------------------
+		// OUTER WHITE BORDER
+		// --------------------------------------------------
+
+		ctx.save();
+
+		ctx.beginPath();
+
+		ctx.moveTo(W * 0.045, H * 0.375);
+		ctx.lineTo(W * 0.185, H * 0.375);
+		ctx.lineTo(W * 0.175, H * 0.480);
+		ctx.lineTo(W * 0.045, H * 0.480);
+		ctx.closePath();
+
+		ctx.fillStyle = "white";
+		ctx.fill();
+
+		// --------------------------------------------------
+		// INNER DARK PANEL
+		// --------------------------------------------------
+
+		ctx.beginPath();
+
+		ctx.moveTo(W * 0.052, H * 0.385);
+		ctx.lineTo(W * 0.178, H * 0.385);
+		ctx.lineTo(W * 0.169, H * 0.470);
+		ctx.lineTo(W * 0.052, H * 0.470);
+		ctx.closePath();
+
+		ctx.globalCompositeOperation = "add";
+		ctx.globalAlpha = 0.7;
+		ctx.fillStyle = "#10243a";
+		ctx.fill();
+		ctx.globalAlpha = 1;
+
+		// --------------------------------------------------
+		// INNER BLUE-GRAY BORDER
+		// --------------------------------------------------
+
+		ctx.lineWidth = W * 0.003;
+
+		ctx.strokeStyle = "#7fa6c4";
+
+		ctx.stroke();
+
+		// --------------------------------------------------
+		// NEW TEXT
+		// --------------------------------------------------
+
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+
+		ctx.font = "bold " + (H * 0.075) + "px Sen-Bold";
+
+		// White center
+		ctx.fillStyle = "white";
+
+		ctx.fillText(
+			"NEW",
+			W * 0.112,
+			H * 0.427
+		);
+
+		ctx.restore();
+
+	}
+
+
+	// --------------------------------------------------
+	// STAR RATING
+	// --------------------------------------------------
+
+	const starSize = H * 0.075;
+
+	// Starting position = bottom-left star
+	const starStartX = W * 0.570;
+	const starStartY = H * 0.835;
+
+	// How far each star moves
+	const starXSpacing = W * 0.0065;   // move right
+	const starYSpacing = H * 0.087;    // move up
+
+
+	// --------------------------------------------------
+	// COLORED GRADIENT OVERLAY
+	// --------------------------------------------------
+
+	ctx.save();
+
+	// Gradient position / size
+	const gradientX = W * 0.5565;
+	const gradientY = H * 0.390;
+
+	const gradientWidth = W * 0.1;
+	const gradientHeight = H * 0.5446;
+
+
+	// --------------------------------------------------
+	// SLANTED SHAPE
+	// --------------------------------------------------
+
+	ctx.beginPath();
+
+	ctx.moveTo(
+		gradientX + gradientWidth * 0.38,
+		gradientY
+	);
+
+	ctx.lineTo(
+		gradientX + gradientWidth,
+		gradientY
+	);
+
+	ctx.lineTo(
+		gradientX + gradientWidth * 0.62,
+		gradientY + gradientHeight
+	);
+
+	ctx.lineTo(
+		gradientX,
+		gradientY + gradientHeight
+	);
+
+	ctx.closePath();
+
+	ctx.clip();
+
+
+	// --------------------------------------------------
+	// GET GRADIENT COLORS
+	// --------------------------------------------------
+
+	const rgb1 = HSBtoRGB(
+		document.getElementById("gradientH1").value,
+		document.getElementById("gradientS1").value,
+		document.getElementById("gradientB1").value
+	);
+
+	const rgb2 = HSBtoRGB(
+		document.getElementById("gradientH2").value,
+		document.getElementById("gradientS2").value,
+		document.getElementById("gradientB2").value
+	);
+
+
+	// --------------------------------------------------
+	// GRADIENT
+	// --------------------------------------------------
+
+	const gradient = ctx.createLinearGradient(
+		gradientX,
+		gradientY + gradientHeight,
+		gradientX,
+		gradientY
+	);
+
+	gradient.addColorStop(
+		0,
+		`rgb(${rgb1[0]}, ${rgb1[1]}, ${rgb1[2]})`
+	);
+
+	gradient.addColorStop(
+		1,
+		`rgb(${rgb2[0]}, ${rgb2[1]}, ${rgb2[2]})`
+	);
+
+
+	// --------------------------------------------------
+	// DRAW
+	// --------------------------------------------------
+
+	ctx.globalCompositeOperation = "add";
+	ctx.globalAlpha = 0.65;
+
+	ctx.fillStyle = gradient;
+
+	ctx.fillRect(
+		gradientX,
+		gradientY,
+		gradientWidth,
+		gradientHeight
+	);
+
+	ctx.restore();
+
+
+	// --------------------------------------------------
+	// STARS
+	// --------------------------------------------------
+
+	ctx.save();
+
+	ctx.filter = "brightness(0) invert(1)";
+
+	// Small soft glow
+	ctx.shadowColor = "rgba(255, 255, 255, 0.9)";
+	ctx.shadowBlur = H * 0.018;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+
+	// Draw stars diagonally: ↗
+	for(let i = 0; i < starcount; i++){
+
+		const starX = starStartX + (i * starXSpacing);
+		const starY = starStartY - (i * starYSpacing);
+
+		if(star[i] && star[i].naturalWidth > 0){
+
+			ctx.drawImage(
+				star[i],
+				starX,
+				starY,
+				starSize,
+				starSize
+			);
+
+		}
+	}
+
+	ctx.restore();
+
+
+	// --------------------------------------------------
+	// LEVEL DISPLAY
+	// --------------------------------------------------
+
+	if(showLevelText.checked){
+
+		let levelNumber = inputtext6.value;
+
+		if(levelNumber === ""){
+			levelNumber = "1";
+		}
+
+		ctx.save();
+
+		ctx.textAlign = "left";
+		ctx.textBaseline = "bottom";
+
+		const levelFontSize = H * 0.09;
+		ctx.font = "bold " + levelFontSize + "px Sen-Bold";
+
+		const levelText = "Lv." + levelNumber;
+
+		const levelX = W * 0.075;
+		const levelY = H * 0.92;
+
+		// --------------------------------------------------
+		// SAME GRADIENT COLORS AS STAR OVERLAY
+		// --------------------------------------------------
+
+		const rgb1 = HSBtoRGB(
+			document.getElementById("gradientH1").value,
+			document.getElementById("gradientS1").value,
+			document.getElementById("gradientB1").value
+		);
+
+		const rgb2 = HSBtoRGB(
+			document.getElementById("gradientH2").value,
+			document.getElementById("gradientS2").value,
+			document.getElementById("gradientB2").value
+		);
+
+		// Gradient follows the height of the text
+		const levelGradient = ctx.createLinearGradient(
+			levelX,
+			levelY - levelFontSize,
+			levelX,
+			levelY
+		);
+
+		levelGradient.addColorStop(
+			0,
+			`rgb(${rgb2[0]}, ${rgb2[1]}, ${rgb2[2]})`
+		);
+
+		levelGradient.addColorStop(
+			1,
+			`rgb(${rgb1[0]}, ${rgb1[1]}, ${rgb1[2]})`
+		);
+
+		// --------------------------------------------------
+		// GRADIENT OUTLINE / GLOW
+		// --------------------------------------------------
+
+		ctx.lineWidth = H * 0.018;
+
+		ctx.lineJoin = "round";
+		ctx.lineCap = "round";
+
+		ctx.strokeStyle = levelGradient;
+
+		ctx.strokeText(
+			levelText,
+			levelX,
+			levelY
+		);
+
+		// --------------------------------------------------
+		// WHITE CENTER
+		// --------------------------------------------------
+
+		ctx.fillStyle = "white";
+
+		ctx.fillText(
+			levelText,
+			levelX,
+			levelY
+		);
+
+		ctx.restore();
+	}
+
+
+    // Reset canvas state
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.filter = "none";
+}
+
+function onStarGradientColorChange() {
+
+	// ------------------------------------------
+	// Gradient Color 1
+	// ------------------------------------------
+
+	const h1 = document.getElementById("gradientH1").value;
+	const s1 = document.getElementById("gradientS1").value;
+	const b1 = document.getElementById("gradientB1").value;
+
+	document.getElementById("gradientH1Num").value = h1;
+	document.getElementById("gradientS1Num").value = s1;
+	document.getElementById("gradientB1Num").value = b1;
+
+
+	// ------------------------------------------
+	// Gradient Color 2
+	// ------------------------------------------
+
+	const h2 = document.getElementById("gradientH2").value;
+	const s2 = document.getElementById("gradientS2").value;
+	const b2 = document.getElementById("gradientB2").value;
+
+	document.getElementById("gradientH2Num").value = h2;
+	document.getElementById("gradientS2Num").value = s2;
+	document.getElementById("gradientB2Num").value = b2;
+
+
+	// Redraw thumbnail
+	onTypeInfo();
+}
+
+function onPanelGradientChange(type, color) {
+
+	if(type !== "new"){
+		return;
+	}
+
+	// ------------------------------------------
+	// Panel Gradient Color 1
+	// ------------------------------------------
+
+	const h1 = document.getElementById("newH1").value;
+	const s1 = document.getElementById("newS1").value;
+	const b1 = document.getElementById("newB1").value;
+
+	document.getElementById("panelGradientH1Num").value = h1;
+	document.getElementById("panelGradientS1Num").value = s1;
+	document.getElementById("panelGradientB1Num").value = b1;
+
+
+	// ------------------------------------------
+	// Panel Gradient Color 2
+	// ------------------------------------------
+
+	const h2 = document.getElementById("newH2").value;
+	const s2 = document.getElementById("newS2").value;
+	const b2 = document.getElementById("newB2").value;
+
+	document.getElementById("panelGradientH2Num").value = h2;
+	document.getElementById("panelGradientS2Num").value = s2;
+	document.getElementById("panelGradientB2Num").value = b2;
+
+
+	// Redraw
+	onTypeInfo();
+}
+
 function getpos(){
 	console.log(debugxpos.value/1000+" "+debugypos.value/1000);
 	
@@ -901,8 +2392,8 @@ function onTypeInfo(){
 	if(inputtext5.value != ""){
 	    inputtext5.value = Math.round(inputtext5.value);
 	}
-		if(inputtext6.value>99){
-		inputtext6.value = "99";
+		if(inputtext6.value>999){
+		inputtext6.value = "999";
 	}
 	if(inputtext6.value<0){
 		inputtext6.value = "0";
@@ -922,32 +2413,33 @@ function onTypeInfo(){
 	onchange();
 }
 
+var uibuttons = document.querySelectorAll(".ui-button");
 
+uibuttons.forEach(function(button) {
+    button.addEventListener("click", function() {
+        selectUI(button.dataset.ui);
+    });
+});
 
-async function onclickchooseUI(){
-    if(UIchoosecheckbox.checked){
-		lableUItype.innerHTML = '<span class="enablecrown">UI: Level list</span>';
-	}
-	else{
-		lableUItype.innerHTML = '<span class="enablecrown">UI: Normal</span>';
-	}
-	UIchoosecheckbox.disabled = true;
-	document.getElementById("showcase").style.animationName = "none";
-	requestAnimationFrame(() => {
-		document.getElementById("showcase").style.animationName = "changeui";
-	});
-	await delay(500);
-	disablebutton();
-	onchange();
-	
+async function selectUI(ui) {
+
+    currentUI = ui;
+
+    uibuttons.forEach(function(button) {
+        button.classList.toggle(
+            "active",
+            button.dataset.ui === currentUI
+        );
+    });
+
+    document.getElementById("showcase").style.animationName = "none";
+
+    requestAnimationFrame(() => {
+        document.getElementById("showcase").style.animationName = "changeui";
+    });
+
+    onchange();
 }
-async function disablebutton(){
-	await delay(500);
-	UIchoosecheckbox.disabled = false;
-	return;
-}
-
-UIchoosecheckbox.addEventListener("click",() => onclickchooseUI());
 
 var starbtns = [
 starbtn1 = document.getElementById("star1"),
@@ -980,4 +2472,92 @@ async function onsetdif(e){
 		onchange();
 }
 
+// Custom and new stuff goes here
 
+function HSBtoRGB(h, s, b) {
+
+	h = Number(h);
+	s = Number(s) / 100;
+	b = Number(b) / 100;
+
+	const k = n => (n + h / 60) % 6;
+	const f = n => b * (1 - s * Math.max(0, Math.min(k(n), 4 - k(n), 1)));
+
+	return [
+		Math.round(f(5) * 255),
+		Math.round(f(3) * 255),
+		Math.round(f(1) * 255)
+	];
+}
+
+const downloadButton = document.getElementById("downloadBtn");
+downloadButton.addEventListener("click", function () {
+
+    // Make sure product exists and is actually a canvas
+    if (!product) {
+        console.error("Canvas 'product' does not exist.");
+        return;
+    }
+
+    if (!(product instanceof HTMLCanvasElement)) {
+        console.error("product exists, but it is not a canvas:", product);
+        return;
+    }
+
+    console.log("Canvas found:", product);
+    console.log("Canvas size:", product.width, "x", product.height);
+
+    try {
+        // Convert canvas to data URL
+        const dataURL = product.toDataURL("image/png");
+
+        console.log("Canvas successfully converted to PNG.");
+
+        // Convert the data URL to a Blob
+        const parts = dataURL.split(",");
+        const byteString = atob(parts[1]);
+
+        const mime = parts[0].match(/:(.*?);/)[1];
+
+        const buffer = new ArrayBuffer(byteString.length);
+        const bytes = new Uint8Array(buffer);
+
+        for (let i = 0; i < byteString.length; i++) {
+            bytes[i] = byteString.charCodeAt(i);
+        }
+
+        const blob = new Blob([buffer], { type: mime });
+
+        // Create temporary URL
+        const url = URL.createObjectURL(blob);
+
+        // Create download link
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "RollingSkyThumbnail.png";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up
+        setTimeout(function () {
+            URL.revokeObjectURL(url);
+        }, 1000);
+
+    } catch (error) {
+        console.error("Failed to create/download canvas image:", error);
+    }
+});
+
+const showLevelText = document.getElementById("showLevelText");
+
+showLevelText.addEventListener("change", function () {
+    onchange();
+});
+
+const showNewTag = document.getElementById("showNewTag");
+
+showNewTag.addEventListener("change", function () {
+    onchange();
+});
