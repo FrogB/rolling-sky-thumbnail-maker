@@ -8,6 +8,18 @@ product = document.querySelector("canvas.product");
 const inputtext6 = document.querySelector('input.textbox6');
 const inputtext7 = document.querySelector('input.textbox7');
 
+const levelNumberImage = new Image();
+
+levelNumberImage.onload = function () {
+    onchange();
+};
+
+levelNumberImage.src = "colevel.png";
+
+const showLevelImage = document.getElementById("showLevelImage");
+
+showLevelImage.addEventListener("change", onchange);
+
 async function onOpen(){
 	product.width = 1280;
 	product.height = product.width * 9 / 16;
@@ -2192,35 +2204,55 @@ function newstyle(){
 
 	ctx.restore();
 
-
 	// --------------------------------------------------
 	// LEVEL DISPLAY
 	// --------------------------------------------------
 
-	if(showLevelText.checked){
+	const levelFontSize = H * 0.09;
+	const levelX = W * 0.075;
+	const levelY = H * 0.92;
 
-		let levelNumber = inputtext6.value;
+	ctx.save();
 
-		if(levelNumber === ""){
-			levelNumber = "1";
-		}
+	// --------------------------------------------------
+	// LEVEL IMAGE
+	// --------------------------------------------------
 
-		ctx.save();
+	if (
+		showLevelImage.checked &&
+		levelNumberImage.complete &&
+		levelNumberImage.naturalWidth > 0
+	) {
+		// Image size: 15% of canvas height
+		const imageHeight = H * 0.35;
+		const imageRatio =
+			levelNumberImage.naturalWidth /
+			levelNumberImage.naturalHeight;
+
+		const imageWidth = imageHeight * imageRatio;
+
+		ctx.drawImage(
+			levelNumberImage,
+			levelX - W * 0.055,          // Move left
+    		levelY - imageHeight + H * 0.085, // Move down
+			imageWidth,
+			imageHeight
+		);
+	}
+
+	// --------------------------------------------------
+	// LEVEL TEXT
+	// --------------------------------------------------
+
+	if (showLevelText.checked) {
+
+		let levelNumber = inputtext6.value || "1";
 
 		ctx.textAlign = "left";
 		ctx.textBaseline = "bottom";
-
-		const levelFontSize = H * 0.09;
 		ctx.font = "bold " + levelFontSize + "px Sen-Bold";
 
 		const levelText = "Lv." + levelNumber;
-
-		const levelX = W * 0.075;
-		const levelY = H * 0.92;
-
-		// --------------------------------------------------
-		// SAME GRADIENT COLORS AS STAR OVERLAY
-		// --------------------------------------------------
 
 		const rgb1 = HSBtoRGB(
 			document.getElementById("gradientH1").value,
@@ -2234,7 +2266,6 @@ function newstyle(){
 			document.getElementById("gradientB2").value
 		);
 
-		// Gradient follows the height of the text
 		const levelGradient = ctx.createLinearGradient(
 			levelX,
 			levelY - levelFontSize,
@@ -2252,37 +2283,18 @@ function newstyle(){
 			`rgb(${rgb1[0]}, ${rgb1[1]}, ${rgb1[2]})`
 		);
 
-		// --------------------------------------------------
-		// GRADIENT OUTLINE / GLOW
-		// --------------------------------------------------
-
 		ctx.lineWidth = H * 0.018;
-
 		ctx.lineJoin = "round";
 		ctx.lineCap = "round";
 
 		ctx.strokeStyle = levelGradient;
-
-		ctx.strokeText(
-			levelText,
-			levelX,
-			levelY
-		);
-
-		// --------------------------------------------------
-		// WHITE CENTER
-		// --------------------------------------------------
+		ctx.strokeText(levelText, levelX, levelY);
 
 		ctx.fillStyle = "white";
-
-		ctx.fillText(
-			levelText,
-			levelX,
-			levelY
-		);
-
-		ctx.restore();
+		ctx.fillText(levelText, levelX, levelY);
 	}
+
+	ctx.restore();
 
 
     // Reset canvas state
